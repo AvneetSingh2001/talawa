@@ -13,6 +13,7 @@ class EventService {
   EventService() {
     _eventStream = _eventStreamController.stream.asBroadcastStream();
     _currentOrg = _userConfig.currentOrg;
+    _userConfig.initialiseStream();
     setOrgStreamSubscription();
   }
 
@@ -35,6 +36,8 @@ class EventService {
   }
 
   Future<void> getEvents() async {
+    await _dbFunctions.refreshAccessToken(userConfig.currentUser.refreshToken!);
+    _dbFunctions.init();
     final String currentOrgID = _currentOrg.id!;
     final String mutation = EventQueries().fetchOrgEvents(currentOrgID);
     final result = await _dbFunctions.gqlAuthMutation(mutation);
@@ -46,7 +49,7 @@ class EventService {
     });
   }
 
-  Future<void> registerForAnEvent(String eventId) async {
+  Future<dynamic> registerForAnEvent(String eventId) async {
     final tokenResult = await _dbFunctions
         .refreshAccessToken(userConfig.currentUser.refreshToken!);
     print(tokenResult);
@@ -55,7 +58,7 @@ class EventService {
       EventQueries().registerForEvent(),
       variables: variables,
     );
-    print(result);
+    return result;
   }
 
   Future<dynamic> deleteEvent(String eventId) async {

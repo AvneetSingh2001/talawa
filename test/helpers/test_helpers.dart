@@ -69,10 +69,19 @@ UserConfig getAndRegisterUserConfig() {
   _removeRegistrationIfExists<UserConfig>();
   final service = MockUserConfig();
 
+  final User member1 = User(id: "testMem1");
+  final User member2 = User(id: "testMem2");
+  final User admin1 = User(id: "testAdmin1");
+  final User admin2 = User(id: "testAdmin2");
+  final List<User> members = [member1, member2];
+  final List<User> admins = [admin1, admin2];
+
   //Mock Data for current organizaiton.
   when(service.currentOrg).thenReturn(OrgInfo(
     id: "XYZ",
     name: "Organization Name",
+    members: members,
+    admins: admins,
   ));
 
   //Mock Stream for currentOrgStream
@@ -89,7 +98,24 @@ UserConfig getAndRegisterUserConfig() {
       refreshToken: "testtoken",
       authToken: 'testtoken',
       adminFor: [],
-      joinedOrganizations: [],
+      joinedOrganizations: [
+        OrgInfo(
+          id: '3',
+          name: 'test org 3',
+          isPublic: true,
+          creatorInfo: User(firstName: 'test', lastName: '1'),
+        ),
+        OrgInfo(
+          id: '4',
+          name: 'test org 4',
+          isPublic: false,
+          creatorInfo: User(firstName: 'test', lastName: '2'),
+        ),
+        OrgInfo(
+          id: "XYZ",
+          name: "Organization Name",
+        ),
+      ],
       membershipRequests: [
         OrgInfo(
           id: '1',
@@ -106,6 +132,7 @@ UserConfig getAndRegisterUserConfig() {
       ]));
 
   locator.registerSingleton<UserConfig>(service);
+
   return service;
 }
 
